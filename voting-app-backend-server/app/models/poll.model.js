@@ -86,7 +86,8 @@ Poll.getChoicesByQuestionId = (req, res) => {
     if(result.length){
         console.log("found customer: ", result[0]);
         res(null, result);
-        return;  
+        return; 
+         
       }
     });
 };
