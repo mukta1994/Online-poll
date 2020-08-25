@@ -7,6 +7,16 @@ module.exports = app => {
   
     // Retrieve a single question with choices with question id
     app.get("/api/getChoicesByQuestionId/:id", votes.getChoicesByQuestionId);
+
+    //to change status of question
+    app.post("/api/changeStatus/:id", 
+      votes.changeStatus
+    );
+
+    // increment vote count when option is clicked
+    app.post("/api/incrementVote/:id", 
+      votes.incrementVote
+    );
   
   
   };

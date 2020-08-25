@@ -5,8 +5,8 @@ import {
     BrowserRouter as Router,
     Link
 } from "react-router-dom";
-import {  getChoicesService, sendVoteService, changeStatusService } from './services/Services';
-import { showModal, hideModal,questionAndOptions, closeButton,questions } from '../Actions'
+import { getChoicesService, sendVoteService, changeStatusService } from './services/Services';
+import { showModal, hideModal, questionAndOptions, closeButton, questions } from '../Actions'
 
 
 class PollList extends Component {
@@ -17,15 +17,15 @@ class PollList extends Component {
 
     componentDidMount() {
         this.props.getquestionList();
-      }
+    }
     openmodal = (modalType) => {
         this.store.dispatch(showModal(modalType));
-      }
-    
-      closemodal = () => {
+    }
+
+    closemodal = () => {
         this.store.dispatch(hideModal());
         this.props.getquestionList();
-      }
+    }
 
     //calculate percentage while displaying vote count
     calculate_percentage = (vote_count, choices) => {
@@ -43,59 +43,60 @@ class PollList extends Component {
 
     getChoices = (item, showpopup, status) => {
         getChoicesService(item.question_id)
-          .then(response => {
-          //   if (!response.ok) {
-          //     throw Error(response.statusText);
-          // }
-            var mydata = { question: item, questionChoices: response }
-            this.store.dispatch(questionAndOptions(mydata));
-            console.log(this.store.getState().questionAndOptions, "questionsans")
-            if (showpopup == 'show_poll')
-              this.openmodal(showpopup)
-            if (showpopup == 'poll_count')
-            this.openmodal(showpopup)
-            if (status == 'close')
-              this.store.dispatch(closeButton('Close Poll'));
-            else
-              this.store.dispatch(closeButton('Close'));
-          });
-    
-      }
+            .then(response => {
+                //   if (!response.ok) {
+                //     throw Error(response.statusText);
+                // }
+                var mydata = { question: item, questionChoices: response }
+                this.store.dispatch(questionAndOptions(mydata));
+                console.log(this.store.getState().questionAndOptions, "questionsans")
+                if (showpopup == 'show_poll')
+                    this.openmodal(showpopup)
+                if (showpopup == 'poll_count')
+                    this.openmodal(showpopup)
+                if (status == 'close')
+                    this.store.dispatch(closeButton('Close Poll'));
+                else
+                    this.store.dispatch(closeButton('Close'));
+            });
 
-      //close question(change status of question)
-  closeQuestion = (item) => {
-    if (this.store.getState().closeButton == 'Close Poll') {
-      changeStatusService({ question_id: item.question_id, status: 'close' })
-        .then(response => {
-          // if (!response.ok) {
-          //   throw Error(response.statusText);
-       // }
-       this.store.dispatch(hideModal());
-       this.props.getquestionList();
-       return response;
-        });
     }
-    else
-    this.props.getquestionList();
 
-    this.store.dispatch(hideModal());
+    //close question(change status of question)
+    closeQuestion = (item) => {
+        if (this.store.getState().closeButton == 'Close Poll') {
+            item.status = 'close'
+            changeStatusService(item)
+                .then(response => {
+                    // if (!response.ok) {
+                    //   throw Error(response.statusText);
+                    // }
+                    this.store.dispatch(hideModal());
+                    this.props.getquestionList();
+                    return response;
+                });
+        }
+        else
+            this.props.getquestionList();
 
-  }
+        this.store.dispatch(hideModal());
 
-   //when choice is selected increase vote count.
-   sendVote = (question, choice_id) => {
-    var data = { question_id: question.question_id, choice_id: choice_id }
-    sendVoteService(data)
-      .then(response => {
-      //   if (!response.ok) {
-      //     throw Error(response.statusText);
-      // }
-        console.log(response, "data")
-        this.getChoices(question, 'poll_count')
-        this.closemodal()
-      return response;        
-      });
-  }
+    }
+
+    //when choice is selected increase vote count.
+    sendVote = (question, choice_id) => {
+        var data = { choice_id: choice_id }
+        sendVoteService(data)
+            .then(response => {
+                //   if (!response.ok) {
+                //     throw Error(response.statusText);
+                // }
+                console.log(response, "data")
+                this.getChoices(question, 'poll_count', 'open')
+                this.closemodal()
+                //return response;        
+            });
+    }
 
 
     render() {
@@ -105,7 +106,7 @@ class PollList extends Component {
 
         const myArrCreatedFromMap = myArr.map((item, i) => (
             <div className="row col-md-12">
-                <div className="show-data  col-md-7" key={i}>{item.question}</div>
+                <div className="show-data col-xs-12 col-sm-8 col-md-7" key={i}>{item.question}</div>
                 <button type="button" disabled={item.status == 'close'} onClick={() => this.getChoices(item, 'show_poll', 'open')} className="close-open">Open
         </button> <button type="button" disabled={item.status == 'close'} onClick={() => this.getChoices(item, 'poll_count', 'close')} className="close-open">Close
         </button>
@@ -182,13 +183,13 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = (dispatch, ownProps) => {
     return {
-         questionAndOptions: () => dispatch(questionAndOptions(ownProps)),
+        questionAndOptions: () => dispatch(questionAndOptions(ownProps)),
         showModal: () => dispatch(showModal(ownProps)),
-        hideModal:()=>dispatch(hideModal()),
+        hideModal: () => dispatch(hideModal()),
         questions: () => dispatch(questions(ownProps))
     }
-  }
+}
 
 
-export default connect(mapStateToProps,mapDispatchToProps)(PollList);
+export default connect(mapStateToProps, mapDispatchToProps)(PollList);
 

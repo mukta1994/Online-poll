@@ -13,10 +13,10 @@ export async function createQuestion(data) {
 }
 
 export async function sendVoteService(data) {
-    const response = await fetch('api/incrementVote', {
+    const response = await fetch('api/incrementVote/'+data.choice_id, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question_id: data.question_id,choice_id:data.choice_id})
+        body: JSON.stringify({choice_id:data.choice_id})
       })
     return await response.json();
     
@@ -34,10 +34,10 @@ export async function getChoicesService(data) {
 }
 
 export async function changeStatusService(data) {
-    const response = await fetch('api/changeStatus', {
+    const response = await fetch('api/changeStatus/'+data.question_id, {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({question_id: data.question_id,status:data.status})
+        body: JSON.stringify({data})
       })
     return await response.json();
 }

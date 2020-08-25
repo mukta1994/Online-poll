@@ -18,20 +18,9 @@ app.get("/", (req, res) => {
 });
 
 
-app.post('/api/changeStatus', (req, res) => {
-  console.log(req.body,'params')  
-        connection.query('UPDATE questions_table SET status = ? WHERE question_id = ?', [req.body.status,req.body.question_id ], function (error, results, fields) {
-          if (error) {
-            console.log("error", error);
-          }
-          else console.log(results)
-          res.json(results);
-        });
-  });
-
   app.post('/api/createQuestion', (req, res) => {
     console.log(req.body)
-    const question = { question: req.body.question, status:req.body.status };
+    const question = { question: req.body.question, status:'req.body.status' };
     const choices = req.body.choices
     // const status=req.body.status
     var choicelist = [];
@@ -61,28 +50,6 @@ app.post('/api/changeStatus', (req, res) => {
     res.json("user add");
   });
   
-  app.post('/api/incrementVote', (req, res) => {
-      console.log(req.body,'params')
-      connection.query('SELECT * FROM choice_table WHERE choice_id = ?', req.body.choice_id, function (error, results, fields) {
-        if (error) {
-          console.log("error ocurred", error);
-        } else {
-          console.log(results)
-          if (results.length > 0) {
-            let voteCount = results[0].vote_count + 1;
-            connection.query('UPDATE choice_table SET vote_count = ? WHERE choice_id = ?', [voteCount, results[0].choice_id], function (error, results, fields) {
-              if (error) {
-                console.log("error", error);
-              }
-              else console.log(results)
-            });
-          }
-          res.json(results);
-        }
-      });
-    });
-
-
 require("./app/routes/routes.js")(app);
 
 // set port, listen for requests
