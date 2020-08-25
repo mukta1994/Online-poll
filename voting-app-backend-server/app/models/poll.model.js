@@ -7,6 +7,38 @@ const Poll = function(poll) {
   this.choices=poll.choices;
 };
 
+Poll.createQuestion=(newQuestion,results)=>{
+  // const status=req.body.status
+  const newQue={question:newQuestion.question,status:newQuestion.status}
+  var choicelist = [];
+
+  // console.log('Adding question:::::', newQuestion.choices);
+  connection.query('INSERT INTO questions_table SET ?', newQue, function (error, result) {
+    if (error) {
+      console.log("error: ", error);
+      results(error, null);
+      return;
+    }
+    else {
+      newQuestion.choices.forEach(element => {
+        choicelist.push([result.insertId, element.name, 0])
+      });
+
+      var stmt = "INSERT INTO choice_table (question_id, choice, vote_count)  VALUES ?";
+
+      // execute the insert statment
+      connection.query(stmt, [choicelist], function (err, res) {
+        if (err) {
+          return console.error(err.message);
+        }
+  
+    results(null,{data:res,success:'ok'});
+        console.log('Row inserted:' + res.affectedRows);
+      });
+    }
+
+  });
+}
 
   Poll.getQuestions = (result) => {
   connection.query('select * from questions_table', (error, results, fields)=> {
@@ -38,7 +70,7 @@ Poll.changeStatus = (id, poll, result) => {
       }
 
       console.log("updated customer: ", { id: id, ...poll });
-      result(null, { id: id, ...poll });
+      result(null, {result:result,success:'ok' });
     }
   );
 };
@@ -66,8 +98,7 @@ connection.query('SELECT * FROM choice_table WHERE choice_id = ?', id, function 
           return;
         }
         else 
-        console.log(results,"123456")
-        result(null,results) 
+        result(null,{result:results,success:'ok'}) 
       });
     }
   }
@@ -84,10 +115,13 @@ Poll.getChoicesByQuestionId = (req, res) => {
         return;
     }
     if(result.length){
-        console.log("found customer: ", result[0]);
-        res(null, result);
+        console.log("found choices: ", result[0]);
+        res(null, {result:result,success:'ok'});
         return; 
          
+      }
+      else{
+        res(null, result);
       }
     });
 };

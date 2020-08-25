@@ -35,7 +35,9 @@ class PollList extends Component {
         });
 
         let percentage = 0;
+        if(total_count>0){
         percentage = (vote_count / total_count) * 100;
+        }
         return {
             width: (percentage).toFixed(2) + '%'
         }
@@ -44,10 +46,8 @@ class PollList extends Component {
     getChoices = (item, showpopup, status) => {
         getChoicesService(item.question_id)
             .then(response => {
-                //   if (!response.ok) {
-                //     throw Error(response.statusText);
-                // }
-                var mydata = { question: item, questionChoices: response }
+                if(response.success=='ok'){
+                var mydata = { question: item, questionChoices: response.result }
                 this.store.dispatch(questionAndOptions(mydata));
                 console.log(this.store.getState().questionAndOptions, "questionsans")
                 if (showpopup == 'show_poll')
@@ -58,6 +58,11 @@ class PollList extends Component {
                     this.store.dispatch(closeButton('Close Poll'));
                 else
                     this.store.dispatch(closeButton('Close'));
+                }
+                else{
+                    console.log("something went wrong")
+                    alert("something went wrong")
+                }
             });
 
     }
@@ -68,12 +73,15 @@ class PollList extends Component {
             item.status = 'close'
             changeStatusService(item)
                 .then(response => {
-                    // if (!response.ok) {
-                    //   throw Error(response.statusText);
-                    // }
-                    this.store.dispatch(hideModal());
-                    this.props.getquestionList();
-                    return response;
+                    if(response.success=='ok') {
+                        this.store.dispatch(hideModal());
+                        this.props.getquestionList();
+                        return response;
+                    }  
+                    else 
+                    alert( "Some error encountered")
+               
+                   
                 });
         }
         else
@@ -88,13 +96,15 @@ class PollList extends Component {
         var data = { choice_id: choice_id }
         sendVoteService(data)
             .then(response => {
-                //   if (!response.ok) {
-                //     throw Error(response.statusText);
-                // }
-                console.log(response, "data")
-                this.getChoices(question, 'poll_count', 'open')
+                if(response.success=='ok'){
+                    console.log(response.success)
+                    this.getChoices(question, 'poll_count', 'open')
+                }
+                else{
+                    alert("vote not incremented with some problem")
+                }
                 this.closemodal()
-                //return response;        
+                      
             });
     }
 
