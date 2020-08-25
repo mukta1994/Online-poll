@@ -60,18 +60,24 @@ class CreatePoll extends Component {
 
   insertQuestion = (data) => {
     createQuestion(data)
-      .then(response => {
-      //   if (!response.ok) {
-      //     throw Error(response.statusText);
-      // }
-      alert('Question inserted')
+    .then(response => {
+      if(response.success=='ok'){
+        alert('Question inserted')
         console.log('Question inserted');
-         this.props.getquestionList();
-         this.store.dispatch(choices(([{ name: "" }])));
-         this.store.dispatch(question(""));
-        return response
+        this.props.getquestionList();
+      }
+      else{
+       alert("some error while inserting")
+      }
+      this.props.getquestionList();
+      this.store.dispatch(choices(([{ name: "" }])));
+      this.store.dispatch(question(""));
+             return response
+
       });
-  }
+     
+      }
+  
 
   render() {
     return (
